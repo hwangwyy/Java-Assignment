@@ -15,6 +15,7 @@ public class User implements Serializable {
     private int roleid;
     private String phone;
     private Date createdDate;
+    private boolean active = true; // false until the activation OTP is confirmed
 
     public User() {
     }
@@ -49,4 +50,6 @@ public class User implements Serializable {
     public void setPhone(String phone) { this.phone = phone; }
     public Date getCreatedDate() { return createdDate; }
     public void setCreatedDate(Date createdDate) { this.createdDate = createdDate; }
+    public boolean isActive() { return active; }
+    public void setActive(boolean active) { this.active = active; }
 }

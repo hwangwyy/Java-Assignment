@@ -12,6 +12,9 @@
 <div class="container">
   <div class="card">
     <h1>Quản lý danh mục</h1>
+    <c:if test="${param.error == 'hasProducts'}">
+      <div class="alert danger">Không thể xóa danh mục đang có sản phẩm! Hãy xóa hoặc chuyển sản phẩm sang danh mục khác trước.</div>
+    </c:if>
     <div class="toolbar">
       <a class="btn" href="<c:url value='/admin/category/add'/>">+ Thêm danh mục mới</a>
       <form action="<c:url value='/admin/category/list'/>" method="get">

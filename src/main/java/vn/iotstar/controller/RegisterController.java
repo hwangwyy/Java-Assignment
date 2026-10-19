@@ -8,7 +8,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import vn.iotstar.service.OtpService;
 import vn.iotstar.service.UserService;
+import vn.iotstar.service.impl.OtpServiceImpl;
 import vn.iotstar.service.impl.UserServiceImpl;
 import vn.iotstar.util.Constant;
 
@@ -18,6 +20,7 @@ public class RegisterController extends HttpServlet {
     private static final Pattern EMAIL = Pattern.compile("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$");
     private static final Pattern USERNAME = Pattern.compile("^[A-Za-z0-9_.-]{3,50}$");
     private final UserService service = new UserServiceImpl();
+    private final OtpService otpService = new OtpServiceImpl();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -64,7 +67,11 @@ public class RegisterController extends HttpServlet {
         }
 
         if (service.register(username, password, email, fullname, phone)) {
-            resp.sendRedirect(req.getContextPath() + "/login?registered=1");
+            OtpService.IssueResult r = otpService.issue(email, Constant.OTP_ACTIVATE);
+            HttpSession session = req.getSession(true);
+            session.setAttribute(Constant.SESSION_OTP_EMAIL, email);
+            String flag = r == OtpService.IssueResult.MAIL_FAILED ? "?mailFailed=1" : "";
+            resp.sendRedirect(req.getContextPath() + "/verify" + flag);
         } else {
             req.setAttribute("alert", "System error!");
             req.getRequestDispatcher(Constant.Path.REGISTER).forward(req, resp);

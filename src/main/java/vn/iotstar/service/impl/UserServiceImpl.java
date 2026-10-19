@@ -26,6 +26,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User getByEmail(String email) {
+        return userDao.getByEmail(email);
+    }
+
+    @Override
     public boolean insert(User user) {
         return userDao.insert(user);
     }
@@ -36,8 +41,20 @@ public class UserServiceImpl implements UserService {
             return false;
         }
         Date today = new Date(System.currentTimeMillis());
-        return userDao.insert(new User(email, username, fullname, PasswordUtil.hash(password), null,
-                Constant.ROLE_USER, phone, today));
+        User user = new User(email, username, fullname, PasswordUtil.hash(password), null, Constant.ROLE_USER,
+                phone, today);
+        user.setActive(false);
+        return userDao.insert(user);
+    }
+
+    @Override
+    public boolean activate(String email) {
+        return userDao.activate(email);
+    }
+
+    @Override
+    public boolean resetPassword(String email, String newPassword) {
+        return userDao.updatePassword(email, PasswordUtil.hash(newPassword));
     }
 
     @Override

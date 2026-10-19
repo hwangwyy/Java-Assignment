@@ -8,7 +8,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import vn.iotstar.model.User;
+import vn.iotstar.service.OtpService;
 import vn.iotstar.service.UserService;
+import vn.iotstar.service.impl.OtpServiceImpl;
 import vn.iotstar.service.impl.UserServiceImpl;
 import vn.iotstar.util.Constant;
 import vn.iotstar.util.RememberMeUtil;
@@ -17,6 +19,7 @@ import vn.iotstar.util.RememberMeUtil;
 public class LoginController extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private final UserService service = new UserServiceImpl();
+    private final OtpService otpService = new OtpServiceImpl();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -30,7 +33,7 @@ public class LoginController extends HttpServlet {
         String username = RememberMeUtil.read(req);
         if (username != null) {
             User user = service.get(username);
-            if (user != null) {
+            if (user != null && user.isActive()) {
                 startSession(req, user);
                 resp.sendRedirect(req.getContextPath() + "/waiting");
                 return;
@@ -53,7 +56,12 @@ public class LoginController extends HttpServlet {
         }
 
         User user = service.login(username.trim(), password);
-        if (user != null) {
+        if (user != null && !user.isActive()) {
+            // Correct credentials but the account was never activated: (re)send an OTP.
+            otpService.issue(user.getEmail(), Constant.OTP_ACTIVATE);
+            req.getSession(true).setAttribute(Constant.SESSION_OTP_EMAIL, user.getEmail());
+            resp.sendRedirect(req.getContextPath() + "/verify?inactive=1");
+        } else if (user != null) {
             startSession(req, user);
             if (isRememberMe) {
                 RememberMeUtil.save(req, resp, user.getUserName());

@@ -15,8 +15,11 @@
   <c:if test="${not empty alert}">
     <div class="alert danger"><c:out value="${alert}"/></div>
   </c:if>
-  <c:if test="${param.registered == '1'}">
-    <div class="alert success">Đăng ký thành công! Hãy đăng nhập.</div>
+  <c:if test="${param.activated == '1'}">
+    <div class="alert success">Kích hoạt tài khoản thành công! Hãy đăng nhập.</div>
+  </c:if>
+  <c:if test="${param.reset == '1'}">
+    <div class="alert success">Đặt lại mật khẩu thành công! Hãy đăng nhập bằng mật khẩu mới.</div>
   </c:if>
 
   <form action="<c:url value='/login'/>" method="post">
@@ -34,6 +37,7 @@
 
     <button type="submit" class="btn" style="width:100%">Đăng nhập</button>
   </form>
+  <p class="center"><a href="<c:url value='/forgot-password'/>">Quên mật khẩu?</a></p>
   <p class="center muted">Nếu bạn chưa có tài khoản, hãy <a href="<c:url value='/register'/>">Đăng ký</a></p>
 </div>
 </body>

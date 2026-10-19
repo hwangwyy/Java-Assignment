@@ -11,9 +11,17 @@ public class UserDaoImpl extends DBConnection implements UserDao {
 
     @Override
     public User get(String username) {
-        String sql = "SELECT * FROM [User] WHERE username = ?";
+        return queryOne("SELECT * FROM [User] WHERE username = ?", username);
+    }
+
+    @Override
+    public User getByEmail(String email) {
+        return queryOne("SELECT * FROM [User] WHERE email = ?", email);
+    }
+
+    private User queryOne(String sql, String value) {
         try (Connection conn = super.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, username);
+            ps.setString(1, value);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     User user = new User();
@@ -26,6 +34,7 @@ public class UserDaoImpl extends DBConnection implements UserDao {
                     user.setRoleid(rs.getInt("roleid"));
                     user.setPhone(rs.getString("phone"));
                     user.setCreatedDate(rs.getDate("createddate"));
+                    user.setActive(rs.getBoolean("active"));
                     return user;
                 }
             }
@@ -37,8 +46,8 @@ public class UserDaoImpl extends DBConnection implements UserDao {
 
     @Override
     public boolean insert(User user) {
-        String sql = "INSERT INTO [User](email, username, fullname, password, avatar, roleid, phone, createddate) "
-                + "VALUES (?,?,?,?,?,?,?,?)";
+        String sql = "INSERT INTO [User](email, username, fullname, password, avatar, roleid, phone, createddate, active) "
+                + "VALUES (?,?,?,?,?,?,?,?,?)";
         try (Connection conn = super.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, user.getEmail());
             ps.setString(2, user.getUserName());
@@ -48,6 +57,31 @@ public class UserDaoImpl extends DBConnection implements UserDao {
             ps.setInt(6, user.getRoleid());
             ps.setString(7, user.getPhone());
             ps.setDate(8, user.getCreatedDate());
+            ps.setBoolean(9, user.isActive());
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public boolean activate(String email) {
+        return update("UPDATE [User] SET active = 1 WHERE email = ?", null, email);
+    }
+
+    @Override
+    public boolean updatePassword(String email, String passwordHash) {
+        return update("UPDATE [User] SET password = ? WHERE email = ?", passwordHash, email);
+    }
+
+    private boolean update(String sql, String first, String email) {
+        try (Connection conn = super.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            int i = 1;
+            if (first != null) {
+                ps.setString(i++, first);
+            }
+            ps.setString(i, email);
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
             e.printStackTrace();

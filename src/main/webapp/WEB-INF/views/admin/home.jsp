@@ -13,8 +13,14 @@
   <div class="card">
     <h1>Dashboard</h1>
     <p>Bạn là <b>Admin</b>: <c:out value="${sessionScope.account.fullName}"/></p>
-    <a class="btn" href="<c:url value='/admin/category/list'/>">Quản lý danh mục</a>
-    <a class="btn secondary" href="<c:url value='/admin/category/add'/>">Thêm danh mục mới</a>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <a class="btn" href="<c:url value='/admin/category/list'/>">Quản lý danh mục</a>
+      <a class="btn secondary" href="<c:url value='/admin/category/add'/>">+ Thêm danh mục</a>
+      <a class="btn" href="<c:url value='/admin/product/list'/>">Quản lý sản phẩm</a>
+      <a class="btn secondary" href="<c:url value='/admin/product/add'/>">+ Thêm sản phẩm</a>
+      <a class="btn secondary" href="<c:url value='/home'/>">Xem Trang chủ</a>
+      <a class="btn secondary" href="<c:url value='/product'/>">Xem Trang sản phẩm</a>
+    </div>
   </div>
 </div>
 </body>
